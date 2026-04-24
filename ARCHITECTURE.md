@@ -32,29 +32,30 @@ graph TD
     end
 
     subgraph "Phase 2: Extraction Pipeline"
-        EXP --> S1[Step 1: Build Dataset Base<br/>dataset.py]
-        S1 --> DB[(dataset_base.csv)]
+        EXP --> S1[Step 1: Build Dataset Base<br/>cli.build_dataset → stages/dataset.py]
+        S1 --> DB[(dataset_base.csv<br/>769 good docs)]
 
-        DB --> S2[Step 2: Build Golden Dataset<br/>golden.py]
+        DB --> S2[Step 2: Build Golden Dataset<br/>cli.build_golden → stages/golden.py]
         S2 --> GD[(golden.jsonl<br/>180 docs: 120/30/30)]
 
-        DB --> S3[Step 3: Run Inference<br/>inference.py]
+        DB --> S3[Step 3: Run Inference<br/>cli.run_inference → stages/inference.py]
         S3 --> PR[(predictions.jsonl<br/>per model)]
 
-        GD --> S4[Step 4: Evaluate Models<br/>evaluation.py]
+        GD --> S4[Step 4: Evaluate Models<br/>cli.evaluate → stages/evaluation.py]
         PR --> S4
         S4 --> LB[(leaderboard.csv<br/>+ benchmark_report.md)]
 
-        DB --> S5[Step 5: Build Final Dataset<br/>final_dataset.py]
+        DB --> S5[Step 5: Build Final Dataset<br/>cli.build_final → stages/final_dataset.py]
         PR --> S5
         LB -.->|picks best model| S5
         S5 --> FD[(final_analytics_dataset.csv)]
     end
 
     subgraph "LLM Providers"
-        S3 -.-> G[Gemini API]
-        S3 -.-> O[OpenAI-compatible<br/>local/GCP endpoint]
-        S3 -.-> MK[Mock Provider]
+        S3 -.-> ON[OllamaNativeProvider<br/>/api/chat endpoint]
+        S3 -.-> G[GeminiProvider<br/>Google Generative AI]
+        S3 -.-> O[OpenAICompatibleProvider<br/>any /v1/chat/completions endpoint]
+        S3 -.-> MK[MockProvider<br/>deterministic baseline]
         S4 -.->|semantic judge| G
     end
 ```
@@ -92,25 +93,29 @@ dsVKR.xlsx (805 rows, column "Link")
 
 ### Phase 2: Extraction Pipeline
 
+All CLI entry points live in `cli/` and delegate to stage modules in `pipeline_core/stages/`. Run via `python -m cli.<name>` from `ParsingLinks/src/`.
+
 ```
 best_per_url_export.csv + texts/
   │
-  ├─► 01_build_dataset_base.py
+  ├─► cli.build_dataset → stages/dataset.py::build_dataset_base
   │     Reads CSV + text files, filters good=True, deduplicates by url_canonical
   │     Assigns doc_id (DOC000001..N)
   │     Output: artifacts/data/dataset_base.csv, .jsonl, _report.json
   │
-  ├─► 02_build_golden_dataset.py
+  ├─► cli.build_golden → stages/golden.py::build_golden_dataset
   │     Stratified sampling: 180 docs from dataset_base
   │     Strata: industry x year x text_len quartile
-  │     Split: 120 train / 30 dev / 30 test
+  │     Split: 120 train / 30 dev / 30 test (seed=42)
   │     Output: artifacts/golden/golden.csv, .jsonl, per-split files, QA sample
   │
-  ├─► 03_run_inference.py
+  ├─► cli.run_inference → stages/inference.py::run_inference
   │     For each configured model: build prompt → call LLM → parse JSON → normalize
+  │     Robust JSON extraction (scans for first `{` to tolerate markdown-wrapped output)
+  │     Supports --skip-existing for resumable runs
   │     Output per model: artifacts/inference_runs/<RUN_ID>/<model>/predictions.jsonl, .csv
   │
-  ├─► 04_evaluate_models.py
+  ├─► cli.evaluate → stages/evaluation.py::evaluate_run
   │     Compares predictions against golden test split
   │     Strict metrics: status accuracy, deployment exact, multilabel F1,
   │                     maturity accuracy, weighted kappa, evidence span overlap
@@ -118,7 +123,7 @@ best_per_url_export.csv + texts/
   │     Final score = 0.70 * strict + 0.30 * semantic
   │     Output: artifacts/evaluation/leaderboard.csv, benchmark_report.md
   │
-  └─► 05_build_final_dataset.py
+  └─► cli.build_final → stages/final_dataset.py::build_final_dataset
         Picks best model from leaderboard (or explicit alias)
         Merges dataset_base + model predictions
         Flattens nested payload into columns
@@ -145,26 +150,36 @@ All scraping scripts import common functions from a single shared module: URL ca
 
 **Why:** Eliminates code duplication across 5 scripts (~250 lines of previously copy-pasted utilities) while keeping domain-specific behavior local.
 
+### Two-layer Phase 2 layout: `pipeline_core/stages/` + `cli/`
+
+The pipeline library is split cleanly: `pipeline_core/` holds reusable utilities (schema, metrics, prompting, providers, I/O, constants); `pipeline_core/stages/` holds one module per pipeline step with a pure public function (`build_dataset_base`, `build_golden_dataset`, `run_inference`, `evaluate_run`, `build_final_dataset`); `cli/` wraps each stage with an `argparse` entry point invoked via `python -m cli.<name>`.
+
+**Why:** Stage functions are testable and importable from notebooks/other code. CLI wrappers only handle argument parsing. No step module imports from another — the stages are independent.
+
 ### Immutable dataset_base
 
 Step 1 creates a frozen snapshot of the corpus. Downstream steps never modify it — they only read and produce new artifacts.
 
-**Why:** Ensures reproducibility. If scraping is re-run, only Step 1 needs re-running. Golden annotations and inference results reference stable `doc_id` values.
+**Why:** Ensures reproducibility. If scraping is re-run, only Step 1 needs re-running. Golden annotations and inference results reference stable `doc_id` values (`DOC000001..N`).
 
 ### Stratified golden sampling
 
-The 180-document golden set is stratified by `industry x year x text_len_quartile` to ensure representativeness. The test split (30 docs) is locked with `golden_test_locked_ids.txt`.
+The 180-document golden set is stratified by `industry x year x text_len_quartile` to ensure representativeness. Split sizes: 120 train / 30 dev / 30 test, seed=42.
 
 **Why:** Prevents evaluation leakage and ensures the benchmark covers the corpus diversity.
 
 ### Provider abstraction
 
-Models are configured via JSON registry, not code changes. Three provider types:
-- `GeminiProvider` — Google Generative AI API
-- `OpenAICompatibleProvider` — any OpenAI-compatible endpoint (local LLMs, GCP)
-- `MockProvider` — deterministic keyword-based baseline (no API needed)
+Models are configured via JSON registry, not code changes. Four provider implementations in `pipeline_core/providers.py`:
 
-**Why:** Allows benchmarking multiple models in a single run without code changes. Mock provider enables pipeline testing without credentials.
+- `OllamaNativeProvider` — native `/api/chat` endpoint (not OpenAI-compat). Required because Qwen3 models ignore the `think` parameter on Ollama's `/v1/chat/completions` endpoint, producing `<think>...</think>` noise before the JSON output.
+- `GeminiProvider` — Google Generative AI API.
+- `OpenAICompatibleProvider` — any OpenAI-compatible `/v1/chat/completions` endpoint (local LLMs, GCP, OpenAI proxies).
+- `MockProvider` — deterministic keyword-based baseline, no API needed.
+
+All providers return a common `ProviderResponse(content, latency_ms, token_usage, raw_response)`. Retries via `tenacity` (3 attempts, exponential backoff) are wired into `OllamaNativeProvider` and `OpenAICompatibleProvider`. `seed=42` is passed where the provider supports it.
+
+**Why:** Allows benchmarking multiple models in a single run without code changes. Mock provider enables pipeline testing without credentials. Native Ollama path exists specifically because the OpenAI-compat endpoint silently breaks Qwen3 structured output.
 
 ### Dual evaluation: strict + semantic
 
@@ -177,9 +192,9 @@ The strict score is a weighted blend with fixed component weights (0.15 + 0.10 +
 
 ### Extraction schema with evidence spans
 
-Each extraction payload includes `evidence_spans` — short quotes from the source text with optional character offsets. Span overlap is part of the evaluation.
+Each extraction payload includes `evidence_spans` — short quotes from the source text with optional character offsets. Span overlap is part of the evaluation; it falls back from char-offset IoU to token-Jaccard quote similarity when offsets are missing.
 
-**Why:** Evidence grounding reduces hallucination and makes the dataset auditable. Character offsets enable precise attribution when available.
+**Why:** Evidence grounding reduces hallucination and makes the dataset auditable. Character offsets enable precise attribution when available, but small models often return spans without offsets — the fallback preserves signal.
 
 ## Extraction schema (prompt contract)
 
@@ -209,11 +224,12 @@ Each extraction payload includes `evidence_spans` — short quotes from the sour
 
 | Module | Function | Input | Output |
 |---|---|---|---|
-| `dataset.py` | `build_dataset_base(input_csv, output_csv, output_jsonl, report_path)` | CSV from scraping export | dataset_base files + report dict |
-| `golden.py` | `build_golden_dataset(dataset_base_csv, output_dir, ...)` | dataset_base.csv | golden files + report dict |
-| `inference.py` | `run_inference(dataset_base_csv, model_registry_path, output_dir, ...)` | dataset_base.csv + model_registry.json | predictions per model + run summary |
-| `evaluation.py` | `evaluate_run(golden_jsonl, inference_run_dir, output_dir, ...)` | golden.jsonl + inference predictions | leaderboard + benchmark report |
-| `final_dataset.py` | `build_final_dataset(dataset_base_csv, inference_run_dir, output_csv, ...)` | dataset_base + predictions | final_analytics_dataset files |
+| `stages/dataset.py` | `build_dataset_base(input_csv, output_csv, output_jsonl, report_path)` | CSV from scraping export | dataset_base files + report dict |
+| `stages/golden.py` | `build_golden_dataset(dataset_base_csv, output_dir, ...)` | dataset_base.csv | golden files + report dict |
+| `stages/inference.py` | `run_inference(dataset_base_csv, model_registry_path, output_dir, ...)` | dataset_base.csv + model_registry.json | predictions per model + run summary |
+| `stages/inference.py` | `extract_first_json_object(raw)` | raw LLM output string | dict or None (tolerates markdown wrappers) |
+| `stages/evaluation.py` | `evaluate_run(golden_jsonl, inference_run_dir, output_dir, ...)` | golden.jsonl + inference predictions | leaderboard + benchmark report |
+| `stages/final_dataset.py` | `build_final_dataset(dataset_base_csv, inference_run_dir, output_csv, ...)` | dataset_base + predictions | final_analytics_dataset files |
 | `providers.py` | `load_model_registry(path)` → `build_provider(config)` → `provider.generate(system, user, settings)` | JSON registry file | `ProviderResponse(content, latency_ms, token_usage, raw_response)` |
 | `schema.py` | `normalize_extraction_payload(raw)` | dict or JSON string | `(normalized_payload, errors)` |
 | `prompting.py` | `build_extraction_prompt(record)` | doc record dict | `(system_prompt, user_prompt)` |
@@ -240,45 +256,44 @@ Each extraction payload includes `evidence_spans` — short quotes from the sour
 
 | File | Purpose |
 |---|---|
-| `config/model_registry.example.json` | Model definitions: alias, provider type, model_id, base_url, API key env var |
-| `config/inference_settings.json` | LLM params: temperature=0.0, top_p=0.95, max_output_tokens=2048, json_mode=true |
-| `config/judge_settings.json` | Judge LLM params: same structure, max_output_tokens=1024 |
+| `config/model_registry.example.json` | Model definitions: alias, provider type, model_id, base_url, API key env var. Copy to `model_registry.json` (gitignored) and fill in host/keys. |
+| `config/inference_settings.json` | LLM params: temperature=0.0, top_p=0.95, max_output_tokens=2048, json_mode=true, seed=42, max_text_chars=16000 |
+| `config/judge_settings.json` | Judge LLM params: same structure, max_output_tokens=1024, max_text_chars=6000 |
 | `config/prompt_contract.md` | Human-readable extraction schema spec |
 | `config/guideline_maturity_v1.md` | Maturity scale definition + annotation rules + QA protocol |
+| `config/prompt_opus_annotator{,_v2}.md` | Prompt used for Opus 4.7 annotator runs (full-corpus reference baseline) |
 
 ## Current status
 
-### Complete (~60%)
+### Done
 
-- Scraping pipeline: all scripts written and executed. `out/final/` contains the merged corpus.
-- Shared scraping utilities consolidated into `scripts/scraping_utils.py` — URL canonicalization, I/O helpers, Playwright automation, `ExtractResult` dataclass.
-- Pipeline core library: all modules implemented — dataset, golden, prompting, providers, inference, metrics, evaluation, final_dataset.
-- Unit tests: schema normalization, metrics (kappa, F1, span overlap), golden builder split correctness.
-- Config files: model registry template, inference/judge settings, prompt contract, maturity guideline.
-- Project hygiene: `.gitignore`, complete `requirements.txt`, `tests/__init__.py`.
+- **Phase 1 — scraping:** all scripts written and executed. `out/final/best_per_url_export.csv` + `texts/` contain the merged corpus. Shared utilities consolidated into `scripts/scraping_utils.py`.
+- **Phase 2 library:** all modules implemented and refactored into `pipeline_core/` (utilities) + `pipeline_core/stages/` (step implementations) + `cli/` (entry points).
+- **Unit tests:** schema normalization, metrics (kappa, F1, span overlap), golden-builder split correctness — `python -m unittest discover tests` passes.
+- **Step 1 — dataset_base:** 769 "good" docs (word_count ≥ 300, text_len ≥ 1000) out of 801 unique canonical URLs from the 805-row source.
+- **Step 3 — inference on full 769 docs for 6 open-weight models** via Ollama native endpoint: `qwen3_8b`, `qwen3_14b` (run `qwen14_800`), `qwen3_32b` (run `qwen32_800`, primary), `llama31_8b`, `gemma4_e4b`, `mistral_7b`. See `docs/analysis_all_models_comparison.md`.
+- **Opus 4.7 reference run** on 160 docs (`opus47_160`): human-guided annotator baseline for validating prompt ceiling on the stronger model.
+- **Prompt ceiling ablation** on 80 docs across qwen3_{8b,14b,32b} (`qwen_ceiling_80`). See `docs/analysis_prompt_ceiling_ablation.md`.
+- **Cross-industry analysis** on the primary model (`qwen3_32b`). See `docs/analysis_cross_industry.md`.
 
-### Remaining (~40%)
+### In progress / remaining
 
-- **Run Step 1** (`01_build_dataset_base.py`) to create `artifacts/data/dataset_base.csv` from the scraping output.
-- **Run Step 2** (`02_build_golden_dataset.py`) to sample 180 documents for the golden set.
-- **Annotate golden dataset** — manual annotation of `gold_fields_payload` for 180 documents using the maturity guideline. This is the main bottleneck.
-- **Configure real models** — set up Gemini API key, local LLM endpoint, GCP endpoint in `model_registry.json`.
-- **Run Step 3** (`03_run_inference.py`) with real models on dataset_base.
-- **Run Step 4** (`04_evaluate_models.py`) — requires annotated golden set.
-- **Run Step 5** (`05_build_final_dataset.py`) — produces the final deliverable.
-- No CI/CD or automated testing beyond manual `unittest discover`.
+- **Manual golden annotations** (`gold_fields_payload`) — scaffold exists with empty payloads; annotation is the main bottleneck for Step 4.
+- **Step 4 — evaluation** against the golden test split — blocked on annotations.
+- **Step 5 — final analytics dataset** — blocked on evaluation (picks the winning model based on the leaderboard).
+- No CI/CD; no automated test runs beyond manual `unittest discover`.
 
 ## Potential improvements
 
 ### Code quality
 
-- **No logging** — all scripts use `print()`. For a pipeline processing 800 documents, `logging` with levels (DEBUG/INFO/WARNING) would make debugging easier (filtering, file output, timestamps).
-- **Provider errors silently caught** — `inference.py` and `evaluation.py` use bare `except Exception` with only a string saved. Adding `logging.exception()` would preserve stack traces for debugging API timeouts, 429 rate limits, invalid keys, etc.
-- **`_resolve_text_path` tries 4 path strategies** — a symptom of unstable path format in the export CSV. Normalizing paths to relative-from-project-root in `final_merge_and_export.py` would eliminate the need for this heuristic.
+- **No logging** — most modules still use `print()`. For a pipeline processing 800 documents across multiple models, `logging` with levels (DEBUG/INFO/WARNING) and file output would make debugging long inference runs easier (filtering, timestamps, severity routing).
+- **Provider errors silently caught** — `inference.py` and `evaluation.py` use bare `except Exception` with only a string saved. Adding `logging.exception()` would preserve stack traces for debugging API timeouts, 429 rate limits, invalid keys, Ollama VRAM-OOM events, etc.
+- **`_resolve_text_path` tries multiple strategies** — a symptom of inconsistent path format in the export CSV. Normalizing paths to relative-from-project-root in `final_merge_and_export.py` would eliminate the need for this heuristic.
 
 ### Test coverage
 
-- **Only 3 of ~10 modules have tests** (`schema`, `metrics`, `golden`). Missing tests for easily testable functions: `extract_first_json_object` (inference.py), `build_extraction_prompt` (prompting.py), `MockProvider.generate` (providers.py), `_flatten_payload` (final_dataset.py).
+- **Only 3 of the stage/utility modules have tests** (`schema`, `metrics`, `golden`). Easily testable functions still without coverage: `extract_first_json_object` (stages/inference.py), `build_extraction_prompt` (prompting.py), `MockProvider.generate` (providers.py), `_flatten_payload` (stages/final_dataset.py).
 
 ### Evaluation robustness
 

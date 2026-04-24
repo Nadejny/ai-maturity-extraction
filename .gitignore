@@ -11,6 +11,10 @@ __pycache__/
 .claude/
 CLAUDE.md
 
+# Working notes — kept local, not part of public repo
+docs/TODO.md
+docs/session_*.md
+
 # OS
 Thumbs.db
 .DS_Store
