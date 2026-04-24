@@ -1,0 +1,24 @@
+{
+  "model_alias": "qwen3_14b",
+  "rows": 80,
+  "structured_valid_rows": 79,
+  "structured_valid_rate": 0.9875,
+  "provider_error_rows": 0,
+  "parse_error_rows": 1,
+  "schema_error_rows": 0,
+  "avg_latency_ms": 21659.97,
+  "total_prompt_tokens": 317738,
+  "total_completion_tokens": 31313,
+  "total_tokens": 349051,
+  "avg_prompt_tokens": 3971.72,
+  "avg_completion_tokens": 391.41,
+  "tokens_per_second": 18.07,
+  "error_tag_counts": {
+    "evidence_spans_empty_despite_signals": 3,
+    "wrong_field_names_detected": 1,
+    "parse_error": 1
+  },
+  "resumed_from_existing_rows": 0,
+  "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/qwen_ceiling_80/qwen3_14b/predictions.jsonl",
+  "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/qwen_ceiling_80/qwen3_14b/predictions.csv"
+}

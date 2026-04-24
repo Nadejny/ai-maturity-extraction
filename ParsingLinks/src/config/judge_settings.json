@@ -1,0 +1,7 @@
+﻿{
+  "temperature": 0.0,
+  "top_p": 0.95,
+  "max_output_tokens": 1024,
+  "json_mode": true,
+  "max_text_chars": 6000
+}

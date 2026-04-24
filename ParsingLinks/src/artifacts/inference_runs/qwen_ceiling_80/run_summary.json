@@ -1,0 +1,83 @@
+{
+  "run_id": "qwen_ceiling_80",
+  "dataset_base_csv": "ParsingLinks/src/artifacts/data/dataset_base.csv",
+  "model_registry_path": "ParsingLinks/src/config/model_registry.json",
+  "prompt_version": "ceiling",
+  "total_docs": 80,
+  "models": {
+    "qwen3_8b": {
+      "model_alias": "qwen3_8b",
+      "rows": 80,
+      "structured_valid_rows": 76,
+      "structured_valid_rate": 0.95,
+      "provider_error_rows": 0,
+      "parse_error_rows": 4,
+      "schema_error_rows": 0,
+      "avg_latency_ms": 18590.71,
+      "total_prompt_tokens": 321834,
+      "total_completion_tokens": 49528,
+      "total_tokens": 371362,
+      "avg_prompt_tokens": 4022.93,
+      "avg_completion_tokens": 619.1,
+      "tokens_per_second": 33.3,
+      "error_tag_counts": {
+        "parse_error": 4,
+        "wrong_field_names_detected": 3,
+        "evidence_spans_alias_used": 1
+      },
+      "resumed_from_existing_rows": 0,
+      "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/qwen_ceiling_80/qwen3_8b/predictions.jsonl",
+      "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/qwen_ceiling_80/qwen3_8b/predictions.csv"
+    },
+    "qwen3_14b": {
+      "model_alias": "qwen3_14b",
+      "rows": 80,
+      "structured_valid_rows": 79,
+      "structured_valid_rate": 0.9875,
+      "provider_error_rows": 0,
+      "parse_error_rows": 1,
+      "schema_error_rows": 0,
+      "avg_latency_ms": 21659.97,
+      "total_prompt_tokens": 317738,
+      "total_completion_tokens": 31313,
+      "total_tokens": 349051,
+      "avg_prompt_tokens": 3971.72,
+      "avg_completion_tokens": 391.41,
+      "tokens_per_second": 18.07,
+      "error_tag_counts": {
+        "evidence_spans_empty_despite_signals": 3,
+        "wrong_field_names_detected": 1,
+        "parse_error": 1
+      },
+      "resumed_from_existing_rows": 0,
+      "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/qwen_ceiling_80/qwen3_14b/predictions.jsonl",
+      "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/qwen_ceiling_80/qwen3_14b/predictions.csv"
+    },
+    "qwen3_32b": {
+      "model_alias": "qwen3_32b",
+      "rows": 80,
+      "structured_valid_rows": 79,
+      "structured_valid_rate": 0.9875,
+      "provider_error_rows": 1,
+      "parse_error_rows": 1,
+      "schema_error_rows": 0,
+      "avg_latency_ms": 77544.05,
+      "total_prompt_tokens": 317738,
+      "total_completion_tokens": 57684,
+      "total_tokens": 375422,
+      "avg_prompt_tokens": 3971.72,
+      "avg_completion_tokens": 721.05,
+      "tokens_per_second": 9.3,
+      "error_tag_counts": {
+        "evidence_spans_empty_despite_signals": 3,
+        "provider_error": 1,
+        "parse_error": 1,
+        "wrong_field_names_detected": 2
+      },
+      "resumed_from_existing_rows": 0,
+      "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/qwen_ceiling_80/qwen3_32b/predictions.jsonl",
+      "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/qwen_ceiling_80/qwen3_32b/predictions.csv"
+    }
+  },
+  "inference_log": "ParsingLinks/src/artifacts/inference_runs/qwen_ceiling_80/inference.log"
+}

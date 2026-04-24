@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# IDE
+.idea/
+
+# Claude Code local settings (project-scope agent config)
+.claude/
+CLAUDE.md
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Playwright browser profiles (cookies, cache, sessions)
+pw_profile/
+
+# Sensitive: real model registry contains server IPs / API endpoints.
+# Use config/model_registry.example.json as the public template.
+ParsingLinks/src/config/model_registry.json
+
+# Original source xlsx (kept locally — not redistributed)
+ParsingLinks/data/*.xlsx
+
+# ── Scraping pipeline raw outputs (~270MB, regeneratable from URL list) ──
+ParsingLinks/out/02_medium/
+ParsingLinks/out/03_a2/
+ParsingLinks/out/bucket_a/
+ParsingLinks/out/99_final/
+# Within out/final/: keep only the canonical export, drop intermediate CSVs
+# and the texts/ directory (article texts have third-party copyright)
+ParsingLinks/out/final/texts/
+ParsingLinks/out/final/best_per_url.csv
+ParsingLinks/out/final/best_per_url_clean.csv
+ParsingLinks/out/final/missing_from_best_per_url.csv
+
+# ── Pipeline runtime artifacts ──
+# dataset_base contains full article texts (third-party copyright) — kept local
+ParsingLinks/src/artifacts/data/dataset_base.csv
+ParsingLinks/src/artifacts/data/dataset_base.jsonl
+# Golden scaffold — empty payloads, not informative for repo
+ParsingLinks/src/artifacts/golden/
+
+# Experimental / mock / superseded inference runs — not part of thesis findings
+ParsingLinks/src/artifacts/inference_runs/4x10/
+ParsingLinks/src/artifacts/inference_runs/4x3/
+ParsingLinks/src/artifacts/inference_runs/mock/
+ParsingLinks/src/artifacts/inference_runs/qwen8_800/
+ParsingLinks/src/artifacts/inference_runs/qwen32_3/
+ParsingLinks/src/artifacts/inference_runs/qwen_3/
+ParsingLinks/src/artifacts/inference_runs/qwen_3_v2/
+
+# Final runs are TRACKED for thesis reproducibility:
+#   4x769/, qwen14_800/, qwen32_800/, opus47_160/, qwen_ceiling_80/
+# Within them, exclude only logs and ad-hoc scratch files:
+ParsingLinks/src/artifacts/inference_runs/*/inference.log
+ParsingLinks/src/artifacts/inference_runs/opus47_160/_doc.txt
+ParsingLinks/src/artifacts/inference_runs/opus47_160/_payload.json
+
+# Scratch files at artifacts root
+ParsingLinks/src/artifacts/_tmp_*
+ParsingLinks/src/artifacts/_sample_ids.json

@@ -1,0 +1,31 @@
+{
+  "run_id": "opus47_160",
+  "batch": 1,
+  "batch_size": 80,
+  "model_alias": "opus_4_7",
+  "rows": 80,
+  "structured_valid_rows": 80,
+  "structured_valid_rate": 1.0,
+  "parse_error_rows": 0,
+  "error_tag_counts": {},
+  "maturity_distribution": {
+    "0": 1,
+    "1": 3,
+    "2": 71,
+    "3": 3,
+    "4": 2
+  },
+  "avg_confidence": 0.73,
+  "signals_present_rates": {
+    "ai_use_cases": 0.9875,
+    "adoption_patterns": 0.9875,
+    "ai_stack": 0.975,
+    "kpi_signals": 0.7875,
+    "budget_signals": 0.2,
+    "org_change_signals": 0.1125,
+    "risk_signals": 0.6,
+    "roadmap_signals": 0.75,
+    "deployment_scope": 0.9375
+  },
+  "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/opus47_160/opus_4_7/predictions.jsonl"
+}

@@ -1,0 +1,68 @@
+{
+  "_comment": "Public template. Copy to model_registry.json (gitignored) and replace <your-ollama-host> / API keys with your own. The 6 Ollama entries below match the configuration used for thesis inference (4x769 + qwen14_800 + qwen32_800).",
+  "models": [
+    {
+      "model_alias": "qwen3_8b",
+      "provider": "ollama",
+      "model_id": "qwen3:8b",
+      "base_url": "http://<your-ollama-host>:11434",
+      "timeout_sec": 180
+    },
+    {
+      "model_alias": "qwen3_14b",
+      "provider": "ollama",
+      "model_id": "qwen3:14b",
+      "base_url": "http://<your-ollama-host>:11434",
+      "timeout_sec": 240
+    },
+    {
+      "model_alias": "qwen3_32b",
+      "provider": "ollama",
+      "model_id": "qwen3:32b",
+      "base_url": "http://<your-ollama-host>:11434",
+      "timeout_sec": 300
+    },
+    {
+      "model_alias": "llama31_8b",
+      "provider": "ollama",
+      "model_id": "llama3.1:8b",
+      "base_url": "http://<your-ollama-host>:11434",
+      "timeout_sec": 180
+    },
+    {
+      "model_alias": "gemma4_e4b",
+      "provider": "ollama",
+      "model_id": "gemma4:e4b",
+      "base_url": "http://<your-ollama-host>:11434",
+      "timeout_sec": 180
+    },
+    {
+      "model_alias": "mistral_7b",
+      "provider": "ollama",
+      "model_id": "mistral:7b",
+      "base_url": "http://<your-ollama-host>:11434",
+      "timeout_sec": 180
+    },
+    {
+      "_comment": "Optional API providers — uncomment & set api_key_env",
+      "model_alias": "gemini_api_primary",
+      "provider": "gemini",
+      "model_id": "gemini-3.5-pro",
+      "api_key_env": "GEMINI_API_KEY",
+      "timeout_sec": 180
+    },
+    {
+      "model_alias": "openai_compatible_example",
+      "provider": "openai_compatible",
+      "model_id": "your-model-id",
+      "base_url": "https://<your-endpoint>/v1",
+      "api_key_env": "YOUR_API_KEY_ENV",
+      "timeout_sec": 180
+    },
+    {
+      "model_alias": "mock_baseline",
+      "provider": "mock",
+      "model_id": "mock"
+    }
+  ]
+}

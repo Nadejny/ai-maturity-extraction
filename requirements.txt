@@ -1,0 +1,12 @@
+pandas
+openpyxl
+requests
+trafilatura
+tqdm
+tenacity
+beautifulsoup4
+lxml
+certifi
+python-certifi-win32; platform_system == "Windows"
+playwright
+tldextract

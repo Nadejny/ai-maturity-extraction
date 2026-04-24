@@ -1,0 +1,111 @@
+{
+  "run_id": "inference_20260417T204057Z",
+  "dataset_base_csv": "ParsingLinks/src/artifacts/data/dataset_base.csv",
+  "model_registry_path": "ParsingLinks/src/config/model_registry.json",
+  "total_docs": 769,
+  "models": {
+    "qwen3_8b": {
+      "model_alias": "qwen3_8b",
+      "rows": 769,
+      "structured_valid_rows": 758,
+      "structured_valid_rate": 0.9857,
+      "provider_error_rows": 0,
+      "parse_error_rows": 11,
+      "schema_error_rows": 0,
+      "avg_latency_ms": 16808.28,
+      "total_prompt_tokens": 2749829,
+      "total_completion_tokens": 470144,
+      "total_tokens": 3219973,
+      "avg_prompt_tokens": 3575.85,
+      "avg_completion_tokens": 611.37,
+      "tokens_per_second": 36.37,
+      "error_tag_counts": {
+        "evidence_spans_empty_despite_signals": 53,
+        "parse_error": 11,
+        "wrong_field_names_detected": 20,
+        "evidence_spans_alias_used": 4
+      },
+      "resumed_from_existing_rows": 0,
+      "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/qwen3_8b/predictions.jsonl",
+      "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/qwen3_8b/predictions.csv"
+    },
+    "llama31_8b": {
+      "model_alias": "llama31_8b",
+      "rows": 769,
+      "structured_valid_rows": 766,
+      "structured_valid_rate": 0.9961,
+      "provider_error_rows": 0,
+      "parse_error_rows": 3,
+      "schema_error_rows": 0,
+      "avg_latency_ms": 15905.01,
+      "total_prompt_tokens": 2712034,
+      "total_completion_tokens": 252793,
+      "total_tokens": 2964827,
+      "avg_prompt_tokens": 3526.7,
+      "avg_completion_tokens": 328.73,
+      "tokens_per_second": 20.67,
+      "error_tag_counts": {
+        "evidence_spans_alias_used": 86,
+        "evidence_spans_empty_despite_signals": 73,
+        "wrong_field_names_detected": 2,
+        "maturity_rationale_empty": 1,
+        "parse_error": 3
+      },
+      "resumed_from_existing_rows": 0,
+      "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/llama31_8b/predictions.jsonl",
+      "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/llama31_8b/predictions.csv"
+    },
+    "gemma4_e4b": {
+      "model_alias": "gemma4_e4b",
+      "rows": 769,
+      "structured_valid_rows": 756,
+      "structured_valid_rate": 0.9831,
+      "provider_error_rows": 0,
+      "parse_error_rows": 13,
+      "schema_error_rows": 0,
+      "avg_latency_ms": 13270.73,
+      "total_prompt_tokens": 2785159,
+      "total_completion_tokens": 491709,
+      "total_tokens": 3276868,
+      "avg_prompt_tokens": 3621.79,
+      "avg_completion_tokens": 639.41,
+      "tokens_per_second": 48.18,
+      "error_tag_counts": {
+        "evidence_spans_empty_despite_signals": 144,
+        "evidence_spans_alias_used": 7,
+        "parse_error": 13,
+        "wrong_field_names_detected": 43
+      },
+      "resumed_from_existing_rows": 0,
+      "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/gemma4_e4b/predictions.jsonl",
+      "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/gemma4_e4b/predictions.csv"
+    },
+    "mistral_7b": {
+      "model_alias": "mistral_7b",
+      "rows": 769,
+      "structured_valid_rows": 766,
+      "structured_valid_rate": 0.9961,
+      "provider_error_rows": 0,
+      "parse_error_rows": 3,
+      "schema_error_rows": 0,
+      "avg_latency_ms": 11801.86,
+      "total_prompt_tokens": 2922976,
+      "total_completion_tokens": 308988,
+      "total_tokens": 3231964,
+      "avg_prompt_tokens": 3801.01,
+      "avg_completion_tokens": 401.8,
+      "tokens_per_second": 34.05,
+      "error_tag_counts": {
+        "evidence_spans_empty_despite_signals": 77,
+        "evidence_spans_alias_used": 76,
+        "wrong_field_names_detected": 11,
+        "maturity_rationale_empty": 3,
+        "parse_error": 3
+      },
+      "resumed_from_existing_rows": 0,
+      "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/mistral_7b/predictions.jsonl",
+      "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/mistral_7b/predictions.csv"
+    }
+  },
+  "inference_log": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/inference.log"
+}

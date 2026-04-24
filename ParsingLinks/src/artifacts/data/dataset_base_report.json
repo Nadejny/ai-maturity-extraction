@@ -1,0 +1,11 @@
+{
+  "input_csv": "ParsingLinks/out/final/best_per_url_export.csv",
+  "total_input_rows": 801,
+  "good_rows": 769,
+  "dataset_base_rows": 769,
+  "duplicate_url_rows_in_input": 0,
+  "unresolved_rows": 0,
+  "output_csv": "ParsingLinks/src/artifacts/data/dataset_base.csv",
+  "output_jsonl": "ParsingLinks/src/artifacts/data/dataset_base.jsonl",
+  "unresolved_csv": "ParsingLinks/src/artifacts/data/dataset_base_unresolved.csv"
+}

@@ -1,0 +1,25 @@
+{
+  "model_alias": "gemma4_e4b",
+  "rows": 769,
+  "structured_valid_rows": 756,
+  "structured_valid_rate": 0.9831,
+  "provider_error_rows": 0,
+  "parse_error_rows": 13,
+  "schema_error_rows": 0,
+  "avg_latency_ms": 13270.73,
+  "total_prompt_tokens": 2785159,
+  "total_completion_tokens": 491709,
+  "total_tokens": 3276868,
+  "avg_prompt_tokens": 3621.79,
+  "avg_completion_tokens": 639.41,
+  "tokens_per_second": 48.18,
+  "error_tag_counts": {
+    "evidence_spans_empty_despite_signals": 144,
+    "evidence_spans_alias_used": 7,
+    "parse_error": 13,
+    "wrong_field_names_detected": 43
+  },
+  "resumed_from_existing_rows": 0,
+  "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/gemma4_e4b/predictions.jsonl",
+  "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/gemma4_e4b/predictions.csv"
+}

@@ -1,0 +1,8 @@
+﻿{
+  "temperature": 0.0,
+  "top_p": 0.95,
+  "max_output_tokens": 2048,
+  "json_mode": true,
+  "max_text_chars": 16000,
+  "seed": 42
+}

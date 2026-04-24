@@ -1,0 +1,26 @@
+{
+  "model_alias": "qwen3_32b",
+  "rows": 769,
+  "structured_valid_rows": 744,
+  "structured_valid_rate": 0.9675,
+  "provider_error_rows": 0,
+  "parse_error_rows": 25,
+  "schema_error_rows": 0,
+  "avg_latency_ms": 81736.49,
+  "total_prompt_tokens": 2749792,
+  "total_completion_tokens": 644399,
+  "total_tokens": 3394191,
+  "avg_prompt_tokens": 3575.8,
+  "avg_completion_tokens": 837.97,
+  "tokens_per_second": 10.25,
+  "error_tag_counts": {
+    "evidence_spans_empty_despite_signals": 49,
+    "wrong_field_names_detected": 9,
+    "parse_error": 25,
+    "evidence_spans_alias_used": 8,
+    "maturity_rationale_empty": 4
+  },
+  "resumed_from_existing_rows": 250,
+  "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/qwen32_250/qwen3_32b/predictions.jsonl",
+  "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/qwen32_250/qwen3_32b/predictions.csv"
+}

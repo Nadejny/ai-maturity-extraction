@@ -1,0 +1,26 @@
+{
+  "model_alias": "llama31_8b",
+  "rows": 769,
+  "structured_valid_rows": 766,
+  "structured_valid_rate": 0.9961,
+  "provider_error_rows": 0,
+  "parse_error_rows": 3,
+  "schema_error_rows": 0,
+  "avg_latency_ms": 15905.01,
+  "total_prompt_tokens": 2712034,
+  "total_completion_tokens": 252793,
+  "total_tokens": 2964827,
+  "avg_prompt_tokens": 3526.7,
+  "avg_completion_tokens": 328.73,
+  "tokens_per_second": 20.67,
+  "error_tag_counts": {
+    "evidence_spans_alias_used": 86,
+    "evidence_spans_empty_despite_signals": 73,
+    "wrong_field_names_detected": 2,
+    "maturity_rationale_empty": 1,
+    "parse_error": 3
+  },
+  "resumed_from_existing_rows": 0,
+  "predictions_jsonl": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/llama31_8b/predictions.jsonl",
+  "predictions_csv": "ParsingLinks/src/artifacts/inference_runs/inference_20260417T204057Z/llama31_8b/predictions.csv"
+}
